@@ -37,21 +37,21 @@ Add some options
 ```bash
 $ dokku docker-options:add myapp "-v /host/path:/container/path"
 $ dokku docker-options:add myapp "-v /another/container/path"
-$ dokku docker-options:add myapp "-link pgsql:db"
+$ dokku docker-options:add myapp "-link container_name:alias"
 ```
 
 Check what we added
 
 ```bash
 $ dokku docker-options myapp
--link pgsql:db
+-link container_name:alias
 -v /host/path:/container/path
 -v /another/container/path
 ```
 
 Remove an option
 ```bash
-$ dokku docker-options:remove myapp "-link pgsql:db"
+$ dokku docker-options:remove myapp "-link container_name:alias"
 ```
 
 Manual Usage
@@ -62,7 +62,7 @@ In your applications folder (/home/dokku/app_name) create a file called DOCKER_O
 Inside this file list one docker option per line*. For example:
 
 ```bash
--link pgsql:db
+-link container_name:alias
 -v /host/path:/container/path
 -v /another/container/path
 ```
@@ -70,7 +70,7 @@ Inside this file list one docker option per line*. For example:
 The above example will result in the following options being passed to docker during deploy and docker run:
 
 ```bash
--link pgsql:db -v /host/path:/container/path -v /another/container/path
+-link container_name:alias -v /host/path:/container/path -v /another/container/path
 ```
 
 Move information on docker options can be found here: http://docs.docker.io/en/latest/reference/run/ .
