@@ -64,7 +64,7 @@ case "$1" in
     OPTIONS_STRING="$3"
     echo "-----> Removing $OPTIONS_STRING from $APP"
     DOCKER_OPTIONS_TEMP=`cat "${DOCKER_OPTIONS_FILE_PATH}"`
-    DOCKER_OPTIONS_TEMP=$(echo -e "${DOCKER_OPTIONS_TEMP}" | sed "s/${OPTIONS_STRING}//")
+    DOCKER_OPTIONS_TEMP=$(echo -e "${DOCKER_OPTIONS_TEMP}" | sed "s#${OPTIONS_STRING}##")
     echo -e "$DOCKER_OPTIONS_TEMP" | sed '/^$/d' | sort -u > $DOCKER_OPTIONS_FILE_PATH
   ;;
 
