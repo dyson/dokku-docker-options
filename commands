@@ -18,7 +18,6 @@ if [[ $1 == docker-options ]] || [[ $1 == docker-options:* ]]; then
     fi
 
     [ -f $DOCKER_OPTIONS_FILE_PATH ] || {
-      echo "-----> Creating $DOCKER_OPTIONS_FILE_PATH"
       touch $DOCKER_OPTIONS_FILE_PATH
     }
   fi
@@ -34,7 +33,6 @@ case "$1" in
       exit 1
     fi
 
-    echo "=== $APP docker options ==="
     cat $DOCKER_OPTIONS_FILE_PATH
   ;;
 
@@ -47,7 +45,6 @@ case "$1" in
     fi
 
     OPTIONS_STRING="$3"
-    echo "-----> Adding $OPTIONS_STRING to $APP"
     echo "$OPTIONS_STRING" >> $DOCKER_OPTIONS_FILE_PATH
     DOCKER_OPTIONS_TEMP=`cat $DOCKER_OPTIONS_FILE_PATH`
     echo -e "$DOCKER_OPTIONS_TEMP" | sed '/^$/d' | sort -u > $DOCKER_OPTIONS_FILE_PATH
@@ -62,7 +59,6 @@ case "$1" in
     fi
 
     OPTIONS_STRING="$3"
-    echo "-----> Removing $OPTIONS_STRING from $APP"
     DOCKER_OPTIONS_TEMP=`cat "${DOCKER_OPTIONS_FILE_PATH}"`
     DOCKER_OPTIONS_TEMP=$(echo -e "${DOCKER_OPTIONS_TEMP}" | sed "s#${OPTIONS_STRING}##")
     echo -e "$DOCKER_OPTIONS_TEMP" | sed '/^$/d' | sort -u > $DOCKER_OPTIONS_FILE_PATH
