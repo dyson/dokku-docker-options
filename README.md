@@ -18,8 +18,42 @@ $ cd /var/lib/dokku/plugins
 $ sudo git clone https://github.com/dyson/dokku-docker-options.git docker-options
 ````
 
-Manual Usage
+Usage
 -----
+
+```bash
+$ dokku help
+...
+    docker-options <app>                            display docker options for an app
+    docker-options:add <app> OPTIONS_STRING         add an option string an app
+    docker-options:remove <app> OPTIONS_STRING      remove an option string from an app
+...
+````
+
+Add some options
+
+```bash
+$ dokku docker-options:add myapp "-v /host/path:/container/path"
+$ dokku docker-options:add myapp "-v /another/container/path"
+$ dokku docker-options:add myapp "-link pgsql:db"
+```
+
+Check what we added
+
+```bash
+$ dokku docker-options myapp
+-link pgsql:db
+-v /host/path:/container/path
+-v /another/container/path
+```
+
+Remove an option
+```bash
+$ dokku docker-options:remove myapp "-link pgsql:db"
+```
+
+Manual Usage
+------------
 
 In your applications folder (/home/dokku/app_name) create a file called DOCKER_OPTIONS.
 
