@@ -75,7 +75,7 @@ The above example will result in the following options being passed to docker du
 
 Move information on docker options can be found here: http://docs.docker.io/en/latest/reference/run/ .
 
-_* Lines must end with a new line character. You can verify your line endings with:_ `cat -E PERSISTENT_STORAGE`
+_* Lines must end with a new line character. You can verify your line endings with:_ `cat -E DOCKER_OPTIONS`
 _and new line characters will be shown as $._
 
 License
