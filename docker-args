@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+STDIN=$(cat)
+APP="$1"
+DOCKER_OPTIONS_FILE="DOCKER_OPTIONS"
+DOCKER_OPTIONS_FILE_PATH="$DOKKU_ROOT/$APP/$DOCKER_OPTIONS_FILE"
+
+output=""
+if [[ -f "$DOCKER_OPTIONS_FILE_PATH" ]]; then
+  while read line
+  do
+    output="$output $line"
+  done < $DOCKER_OPTIONS_FILE_PATH
+fi
+
+echo "$STDIN$output"
