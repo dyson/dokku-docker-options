@@ -5,7 +5,7 @@ Basic docker options for dokku (https://github.com/progrium/dokku).
 
 A number of dokku plugins that add docker options at run/deploy have been created. Some of these make sense to be a seperate plugin as care is required in the options use or perhaps they offer extra functionality around the handling of the options.
 
-Other plugins have also been created that require no special consideration in their use and offer no extra functionality above dokku-docker-options. For exmaple my original docker-persistent-storage (https://github.com/dyson/dokku-persistent-storage) plugin that is almost identical to this plugin; accept it doesn't require you to manually add the -v option.
+Other plugins have also been created that require no special consideration in their use and offer no extra functionality above dokku-docker-options. For exmaple my original docker-persistent-storage (https://github.com/dyson/dokku-persistent-storage) plugin that is almost identical to this plugin; accept it hardcodes the -v option, making it useless for anything else.
 
 Requirements
 ------------
