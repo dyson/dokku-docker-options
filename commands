@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+CMD=$1
+[[ $CMD ]] && {
+  shift
+  APP=$1
+  [[ $APP ]] && {
+    shift
+    OPTIONS_STRING="$@"
+  }
+}
+
 # Check if application is specified
-if [[ $1 == docker-options ]] || [[ $1 == docker-options:* ]]; then
-  if [[ -z $2 ]]; then
+if [[ $CMD == docker-options ]] || [[ $CMD == docker-options:* ]]; then
+  if [[ ! $APP ]]; then
     echo "You must specify an app name"
     exit 1
   else
-    APP="$2"
     DOCKER_OPTIONS_FILE="DOCKER_OPTIONS"
     DOCKER_OPTIONS_FILE_PATH="$DOKKU_ROOT/$APP/$DOCKER_OPTIONS_FILE"
 
@@ -23,10 +32,9 @@ if [[ $1 == docker-options ]] || [[ $1 == docker-options:* ]]; then
   fi
 fi
 
-case "$1" in
+case "$CMD" in
   # Display applications docker options
   docker-options)
-    APP="$2"
 
     if [ ! -f $DOCKER_OPTIONS_FILE_PATH ] || [ ! -s $DOCKER_OPTIONS_FILE_PATH ] ; then
       echo "$APP has no docker options"
@@ -38,13 +46,12 @@ case "$1" in
 
   # Add a docker option to application
   docker-options:add)
-    if [[ -z $3 ]]; then
+    if [[ ! $OPTIONS_STRING ]]; then
       echo "Usage: dokku docker-options:add <app> OPTIONS_STRING"
       echo "Must specify an OPTIONS_STRING to add."
       exit 1
     fi
 
-    OPTIONS_STRING="$3"
     echo "$OPTIONS_STRING" >> $DOCKER_OPTIONS_FILE_PATH
     DOCKER_OPTIONS_TEMP=`cat $DOCKER_OPTIONS_FILE_PATH`
     echo -e "$DOCKER_OPTIONS_TEMP" | sed '/^$/d' | sort -u > $DOCKER_OPTIONS_FILE_PATH
@@ -52,13 +59,12 @@ case "$1" in
 
   # Remove a docker option from application
   docker-options:remove)
-    if [[ -z $3 ]]; then
+    if [[ ! $OPTIONS_STRING ]]; then
       echo "Usage: dokku docker-options:remove <app> OPTIONS_STRING"
       echo "Must specify OPTIONS_STRING to remove."
       exit 1
     fi
 
-    OPTIONS_STRING="$3"
     DOCKER_OPTIONS_TEMP=`cat "${DOCKER_OPTIONS_FILE_PATH}"`
     DOCKER_OPTIONS_TEMP=$(echo -e "${DOCKER_OPTIONS_TEMP}" | sed "s#${OPTIONS_STRING}##")
     echo -e "$DOCKER_OPTIONS_TEMP" | sed '/^$/d' | sort -u > $DOCKER_OPTIONS_FILE_PATH
