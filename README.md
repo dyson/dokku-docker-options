@@ -59,7 +59,7 @@ Manual Usage
 
 In your applications folder (/home/dokku/app_name) create a file called DOCKER_OPTIONS.
 
-Inside this file list one docker option per line*. For example:
+Inside this file list one docker option per line. For example:
 
 ```bash
 -link container_name:alias
@@ -73,10 +73,9 @@ The above example will result in the following options being passed to docker du
 -link container_name:alias -v /host/path:/container/path -v /another/container/path
 ```
 
+You may also include comments (lines beginning with a #) and blank lines in the DOCKER_OPTIONS file.
 Move information on docker options can be found here: http://docs.docker.io/en/latest/reference/run/ .
 
-_* Lines must end with a new line character. You can verify your line endings with:_ `cat -E DOCKER_OPTIONS`
-_and new line characters will be shown as $._
 
 License
 -------
