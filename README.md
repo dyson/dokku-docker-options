@@ -74,6 +74,7 @@ The above example will result in the following options being passed to docker du
 ```
 
 You may also include comments (lines beginning with a #) and blank lines in the DOCKER_OPTIONS file.
+
 Move information on docker options can be found here: http://docs.docker.io/en/latest/reference/run/ .
 
 
