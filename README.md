@@ -23,7 +23,7 @@ Usage
 $ dokku help
 ...
     docker-options <app>                            display docker options for an app
-    docker-options:add <app> OPTIONS_STRING         add an option string an app
+    docker-options:add <app> OPTIONS_STRING         add an option string to an app
     docker-options:remove <app> OPTIONS_STRING      remove an option string from an app
 ...
 ````
