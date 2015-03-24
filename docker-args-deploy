@@ -3,11 +3,12 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 STDIN=$(cat)
 APP="$1"
-DOCKER_OPTIONS_FILE="DOCKER_OPTIONS"
-DOCKER_OPTIONS_FILE_PATH="$DOKKU_ROOT/$APP/$DOCKER_OPTIONS_FILE"
+
+FILE_PREFIX="DOCKER_OPTIONS_"
+PHASE_FILE_PATH="${DOKKU_ROOT}/${APP}/${FILE_PREFIX}DEPLOY"
 
 output=""
-if [[ -f "$DOCKER_OPTIONS_FILE_PATH" ]]; then
+if [[ -f "$PHASE_FILE_PATH" ]]; then
   DONE=false
   until $DONE; do
     read line || DONE=true
@@ -22,7 +23,7 @@ if [[ -f "$DOCKER_OPTIONS_FILE_PATH" ]]; then
         output="$output $line"
         ;;
     esac
-  done < $DOCKER_OPTIONS_FILE_PATH
+  done < $PHASE_FILE_PATH
 fi
 
 echo "$STDIN$output"

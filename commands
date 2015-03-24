@@ -1,81 +1,104 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
 
-CMD=$1
-[[ $CMD ]] && {
-  shift
-  APP=$1
-  [[ $APP ]] && {
-    shift
-    OPTIONS_STRING="$@"
+PHASES=(build deploy run)
+
+FILE_PREFIX="DOCKER_OPTIONS_"
+
+verify_phase() {
+  for phase in "${PHASES[@]}"; do
+    if [[ "$phase" = "$1" ]]; then
+      return 0
+    fi
+  done
+
+  dokku_log_fail "Phase must be one of [${PHASES[@]}]"
+}
+
+create_phase_file_path() {
+  phase_file_path="${DOKKU_ROOT}/${APP}/${FILE_PREFIX}${PHASE^^}"
+}
+
+create_file() {
+  [ -f $phase_file_path ] || {
+    touch $phase_file_path
   }
 }
 
-# Check if application is specified
-if [[ $CMD == docker-options ]] || [[ $CMD == docker-options:* ]]; then
-  if [[ ! $APP ]]; then
-    echo "You must specify an app name"
-    exit 1
-  else
-    DOCKER_OPTIONS_FILE="DOCKER_OPTIONS"
-    DOCKER_OPTIONS_FILE_PATH="$DOKKU_ROOT/$APP/$DOCKER_OPTIONS_FILE"
-
-    # Check if app exists with the same name
-    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
-      echo "App $APP does not exist"
-      exit 1
-    fi
-
-    [ -f $DOCKER_OPTIONS_FILE_PATH ] || {
-      touch $DOCKER_OPTIONS_FILE_PATH
-    }
-  fi
-fi
-
-case "$CMD" in
+case "$1" in
   # Display applications docker options
   docker-options)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"
 
-    if [ ! -f $DOCKER_OPTIONS_FILE_PATH ] || [ ! -s $DOCKER_OPTIONS_FILE_PATH ] ; then
-      echo "$APP has no docker options"
+    [[ -z $3 ]] && echo "Please specify a phase to display docker options for" && exit 1
+    verify_phase "$3"
+    PHASE="$3"
+
+    create_phase_file_path
+
+    if [ ! -s $phase_file_path ] ; then
+      echo "$APP has no docker options for $PHASE phase"
       exit 1
     fi
 
-    cat $DOCKER_OPTIONS_FILE_PATH
+    cat $phase_file_path
   ;;
 
   # Add a docker option to application
   docker-options:add)
-    if [[ ! $OPTIONS_STRING ]]; then
-      echo "Usage: dokku docker-options:add <app> OPTIONS_STRING"
-      echo "Must specify an OPTIONS_STRING to add."
-      exit 1
-    fi
+   [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"
 
-    echo "$OPTIONS_STRING" >> $DOCKER_OPTIONS_FILE_PATH
-    DOCKER_OPTIONS_TEMP=`cat $DOCKER_OPTIONS_FILE_PATH`
-    echo -e "$DOCKER_OPTIONS_TEMP" | sed '/^$/d' | sort -u > $DOCKER_OPTIONS_FILE_PATH
+    [[ -z $3 ]] && echo "Please specify a phase to add docker option to" && exit 1
+    verify_phase "$3"
+    PHASE="$3"
+
+    shift 3
+
+    [[ -z $@ ]] && echo "Please specify docker options to add to the phase" && exit 1
+    OPTIONS_STRING=$@
+
+    create_phase_file_path
+    create_file 
+
+    echo "$OPTIONS_STRING" >> $phase_file_path
+    all_phase_options=`cat $phase_file_path`
+    echo -e "$all_phase_options" | sed '/^$/d' | sort -u > $phase_file_path
   ;;
 
   # Remove a docker option from application
   docker-options:remove)
-    if [[ ! $OPTIONS_STRING ]]; then
-      echo "Usage: dokku docker-options:remove <app> OPTIONS_STRING"
-      echo "Must specify OPTIONS_STRING to remove."
-      exit 1
-    fi
+   [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"
 
-    DOCKER_OPTIONS_TEMP=`cat "${DOCKER_OPTIONS_FILE_PATH}"`
-    DOCKER_OPTIONS_TEMP=$(echo -e "${DOCKER_OPTIONS_TEMP}" | sed "s#${OPTIONS_STRING}##")
-    echo -e "$DOCKER_OPTIONS_TEMP" | sed '/^$/d' | sort -u > $DOCKER_OPTIONS_FILE_PATH
+    [[ -z $3 ]] && echo "Please specify a phase to remove docker option from" && exit 1
+    verify_phase "$3"
+    PHASE="$3"
+
+    shift 3
+
+    [[ -z $@ ]] && echo "Please specify docker options to remove from the phase" && exit 1
+    OPTIONS_STRING=$@
+
+    create_phase_file_path
+    create_file
+
+    all_phase_options=`cat $phase_file_path`
+    all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${OPTIONS_STRING}\$##")
+    echo -e "$all_phase_options" | sed '/^$/d' | sort -u > $phase_file_path
   ;;
 
   # Display usage help
   help)
     cat && cat<<EOF
-    docker-options <app>                            display docker options for an app
-    docker-options:add <app> OPTIONS_STRING         add an option string to an app
-    docker-options:remove <app> OPTIONS_STRING      remove an option string from an app
+    docker-options <app> <phase>                    Display apps docker options for given phase
+    docker-options:add <app> <phase> OPTION         Add a docker option to an app for given phase
+    docker-options:remove <app> <phase> OPTION      Remove a docker option from an app for given phase
 EOF
   ;;
 

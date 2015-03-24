@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+STDIN=$(cat)
+APP="$1"
+
+FILE_PREFIX="DOCKER_OPTIONS_"
+PHASE_FILE_PATH="${DOKKU_ROOT}/${APP}/${FILE_PREFIX}BUILD"
+
+output=""
+if [[ -f "$PHASE_FILE_PATH" ]]; then
+  DONE=false
+  until $DONE; do
+    read line || DONE=true
+
+    [[ ! -n "$line" ]] && continue
+
+    case "$line" in
+      \#*)
+        continue
+        ;;
+      *)
+        output="$output $line"
+        ;;
+    esac
+  done < $PHASE_FILE_PATH
+fi
+
+echo "$STDIN$output"
