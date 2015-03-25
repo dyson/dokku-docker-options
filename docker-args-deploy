@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/common-docker-args"
 
 STDIN=$(cat)
 APP="$1"
@@ -8,22 +9,7 @@ FILE_PREFIX="DOCKER_OPTIONS_"
 PHASE_FILE_PATH="${DOKKU_ROOT}/${APP}/${FILE_PREFIX}DEPLOY"
 
 output=""
-if [[ -f "$PHASE_FILE_PATH" ]]; then
-  DONE=false
-  until $DONE; do
-    read line || DONE=true
 
-    [[ ! -n "$line" ]] && continue
-
-    case "$line" in
-      \#*)
-        continue
-        ;;
-      *)
-        output="$output $line"
-        ;;
-    esac
-  done < $PHASE_FILE_PATH
-fi
+get_options
 
 echo "$STDIN$output"
