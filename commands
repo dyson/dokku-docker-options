@@ -21,9 +21,14 @@ create_phase_file_path() {
 }
 
 create_file() {
-  [ -f $phase_file_path ] || {
+  [[ -f $phase_file_path ]] || {
     touch $phase_file_path
   }
+}
+
+display_options() {
+  echo "${phase^} options:"
+  cat $phase_file_path | sed -e 's/^/    /'
 }
 
 case "$1" in
@@ -33,18 +38,29 @@ case "$1" in
     verify_app_name "$2"
     APP="$2"
 
-    [[ -z $3 ]] && echo "Please specify a phase to display docker options for" && exit 1
-    verify_phase "$3"
-    PHASE="$3"
+    if [[ -z $3 ]]; then
+      for phase in "${PHASES[@]}"; do
+        PHASE=$phase
 
-    create_phase_file_path
+        create_phase_file_path
 
-    if [ ! -s $phase_file_path ] ; then
-      echo "$APP has no docker options for $PHASE phase"
-      exit 1
+        if [[ -s $phase_file_path ]] ; then
+          display_options
+        fi
+      done
+    else
+      verify_phase "$3"
+      PHASE="$3"
+
+      create_phase_file_path
+
+      if [ ! -s $phase_file_path ] ; then
+        echo "$APP has no docker options for $PHASE phase"
+        exit 1
+      fi
+
+      display_options
     fi
-
-    cat $phase_file_path
   ;;
 
   # Add a docker option to application
@@ -96,6 +112,7 @@ case "$1" in
   # Display usage help
   help)
     cat && cat<<EOF
+    docker-options <app>                            Display apps docker options for all phases
     docker-options <app> <phase>                    Display apps docker options for given phase
     docker-options:add <app> <phase> OPTION         Add a docker option to an app for given phase
     docker-options:remove <app> <phase> OPTION      Remove a docker option from an app for given phase
