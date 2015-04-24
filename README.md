@@ -3,7 +3,7 @@ DEPRECIATED
 
 Docker docker options was merged into dokku at https://github.com/progrium/dokku/commit/df8f4fb8824550518b07c87ac56aba568bd81295
 
-There is no need to use this plugin if your running a dokku version after this. This plugin will not longer be maintained.
+There is no need to use this plugin if your running a dokku version after this. This plugin will no longer be maintained.
 
 dokku-docker-options
 ==================================
